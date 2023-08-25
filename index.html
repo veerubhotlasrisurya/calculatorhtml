@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SIP Calculator</title>
+    <style>
+        body {
+            font-family: "Times New Roman", Times, serif;
+            text-align: center;
+        }
+
+        h1 {
+            margin-top: 40px;
+        }
+
+        #calculator {
+            margin: 40px auto;
+            max-width: 400px;
+        }
+
+        label {
+            display: block;
+            margin-top: 10px;
+        }
+
+        input[type="number"] {
+            width: 100%;
+            padding: 5px;
+            box-sizing: border-box;
+        }
+
+        select {
+            width: 100%;
+            padding: 5px;
+            box-sizing: border-box;
+        }
+
+        table {
+            margin: 40px auto;
+            border-collapse: collapse;
+            width: 100%;
+            max-width: 600px;
+        }
+
+        th,
+        td {
+            padding: 10px;
+            border: 1px solid #ccc;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        .calculate-button {
+            margin-top: 10px;
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        #chart {
+            margin: 40px auto;
+            max-width: 400px;
+            width: 100%;
+            height: 300px;
+        }
+
+        #recentCalculations {
+            margin-top: 40px;
+            text-align: center;
+        }
+
+        @media only screen and (max-width: 600px) {
+            #calculator {
+                max-width: 100%;
+            }
+
+            table {
+                font-size: 12px;
+            }
+
+            #chart {
+                max-width: 100%;
+                height: 200px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <h1><a style="text-decoration:none" href="https://www.thefinanceblog.in/"><font color="black">THE FINANCE BLOG</font></a></h1>
+    <h1>SIP Calculator</h1>
+    <div id="calculator">
+        <label>
+            Investment Type:
+            <select id="investmentType" onchange="toggleInputs()">
+                <option value="">-- Select Option --</option>
+                <option value="monthly">Monthly Investment</option>
+                <option value="lumpsum">Lumpsum Investment</option>
+            </select>
+        </label>
+        <div id="monthlyInputs" style="display: none;">
+            <label>
+                Monthly Investment Amount: <input type="number" id="monthlyInvestmentAmount" />
+            </label>
+            <label>
+                Expected Rate of Return: <input type="number" id="monthlyRateOfReturn" />
+            </label>
+            <label>
+                Time Period (No of Months): <input type="number" id="monthlyTimePeriod" />
+            </label>
+        </div>
+        <div id="lumpsumInputs" style="display: none;">
+            <label>
+                Lumpsum Investment Amount: <input type="number" id="lumpsumInvestmentAmount" />
+            </label>
+            <label>
+                Expected Rate of Return: <input type="number" id="lumpsumRateOfReturn" />
+            </label>
+            <label>
+                Time Period (No of Years): <input type="number" id="lumpsumTimePeriod" />
+            </label>
+        </div>
+        <button class="calculate-button" onclick="calculate()">Calculate</button>
+        <div id="output" style="display: none;">
+            <h2>Results</h2>
+            <p>Total Investment Amount: <span id="totalInvestmentAmount"></span></p>
+            <p>Expected Return: <span id="expectedReturn"></span></p>
+            <p>Total Value: <span id="totalValue"></span></p>
+        </div>
+    </div>
+
+    <div id="chart"></div>
+
+    <h2 id="recentCalculations">Recent Calculations</h2>
+    <table id="calculationTable">
+        <thead>
+            <tr>
+                <th>Investment Type</th>
+                <th>Investment Amount</th>
+                <th>Rate of Return</th>
+                <th>Time Period</th>
+                <th>Total Investment Amount</th>
+                <th>Expected Return</th>
+                <th>Total Value</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+
+    <script src="https://www.gstatic.com/charts/loader.js"></script>
+    <script>
+        function toggleInputs() {
+            var investmentType = document.getElementById("investmentType").value;
+            var monthlyInputs = document.getElementById("monthlyInputs");
+            var lumpsumInputs = document.getElementById("lumpsumInputs");
+
+            if (investmentType === "monthly") {
+                monthlyInputs.style.display = "block";
+                lumpsumInputs.style.display = "none";
+            } else if (investmentType === "lumpsum") {
+                monthlyInputs.style.display = "none";
+                lumpsumInputs.style.display = "block";
+            } else {
+                monthlyInputs.style.display = "none";
+                lumpsumInputs.style.display = "none";
+            }
+        }
+
+        function calculate() {
+            var investmentType = document.getElementById("investmentType").value;
+            var totalInvestmentAmount = 0;
+            var expectedReturn = 0;
+            var totalValue = 0;
+
+            if (investmentType === "monthly") {
+                var monthlyInvestmentAmount = parseFloat(document.getElementById("monthlyInvestmentAmount").value);
+                var monthlyRateOfReturn = parseFloat(document.getElementById("monthlyRateOfReturn").value);
+                var monthlyTimePeriod = parseFloat(document.getElementById("monthlyTimePeriod").value);
+
+                totalInvestmentAmount = monthlyInvestmentAmount * monthlyTimePeriod;
+
+                var i = monthlyRateOfReturn / 100 / 12;
+                totalValue = monthlyInvestmentAmount * ((Math.pow(1 + i, monthlyTimePeriod) - 1) / i) * (1 + i);
+
+                expectedReturn = totalValue - totalInvestmentAmount;
+            } else if (investmentType === "lumpsum") {
+                var lumpsumInvestmentAmount = parseFloat(document.getElementById("lumpsumInvestmentAmount").value);
+                var lumpsumRateOfReturn = parseFloat(document.getElementById("lumpsumRateOfReturn").value);
+                var lumpsumTimePeriod = parseFloat(document.getElementById("lumpsumTimePeriod").value);
+
+                totalInvestmentAmount = lumpsumInvestmentAmount;
+                totalValue = lumpsumInvestmentAmount * Math.pow(1 + lumpsumRateOfReturn / 100, lumpsumTimePeriod);
+                expectedReturn = totalValue - totalInvestmentAmount;
+            }
+
+            totalInvestmentAmount = formatCurrency(totalInvestmentAmount);
+            expectedReturn = formatCurrency(expectedReturn);
+            totalValue = formatCurrency(totalValue);
+
+            document.getElementById("totalInvestmentAmount").textContent = totalInvestmentAmount;
+            document.getElementById("expectedReturn").textContent = expectedReturn;
+            document.getElementById("totalValue").textContent = totalValue;
+
+            addToTable(
+                document.getElementById("investmentType").value,
+                document.getElementById("investmentType").options[document.getElementById("investmentType").selectedIndex].text,
+                document.getElementById("investmentType").value === "monthly" ? formatCurrency(parseFloat(document.getElementById("monthlyInvestmentAmount").value)) : formatCurrency(parseFloat(document.getElementById("lumpsumInvestmentAmount").value)),
+                document.getElementById("investmentType").value === "monthly" ? formatCurrency(parseFloat(document.getElementById("monthlyRateOfReturn").value)) + "%" : formatCurrency(parseFloat(document.getElementById("lumpsumRateOfReturn").value)) + "%",
+                document.getElementById("investmentType").value === "monthly" ? parseFloat(document.getElementById("monthlyTimePeriod").value) + " Months" : parseFloat(document.getElementById("lumpsumTimePeriod").value) + " Years",
+                totalInvestmentAmount,
+                expectedReturn,
+                totalValue
+            );
+
+            document.getElementById("output").style.display = "block";
+            drawChart(parseFloat(totalInvestmentAmount.replace(/[^0-9.-]+/g,"")), parseFloat(expectedReturn.replace(/[^0-9.-]+/g,"")));
+        }
+
+        function addToTable(investmentType, investmentTypeName, investmentAmount, rateOfReturn, timePeriod, totalInvestmentAmount, expectedReturn, totalValue) {
+            var table = document.getElementById("calculationTable").getElementsByTagName("tbody")[0];
+            var row = table.insertRow(0);
+            var cells = [investmentTypeName, investmentAmount, rateOfReturn, timePeriod];
+
+            for (var i = 0; i < cells.length; i++) {
+                var cell = row.insertCell(i);
+                cell.textContent = cells[i];
+            }
+
+            row.insertCell().textContent = totalInvestmentAmount;
+            row.insertCell().textContent = expectedReturn;
+            row.insertCell().textContent = totalValue;
+        }
+
+        function formatCurrency(amount) {
+            var formatter = new Intl.NumberFormat('en-IN', {
+                style: 'currency',
+                currency: 'INR',
+                minimumFractionDigits: 2
+            });
+
+            return formatter.format(amount);
+        }
+
+        function drawChart(totalInvestment, expectedReturn) {
+            google.charts.load('current', { packages: ['corechart'] });
+            google.charts.setOnLoadCallback(function () {
+                var data = google.visualization.arrayToDataTable([
+                    ['Type', 'Amount'],
+                    ['Total Investment Amount', totalInvestment],
+                    ['Expected Return', expectedReturn]
+                ]);
+
+                var options = {
+                    title: 'Investment Breakdown',
+                    pieHole: 0.4,
+                };
+
+                var chart = new google.visualization.PieChart(document.getElementById('chart'));
+                chart.draw(data, options);
+            });
+        }
+    </script>
+</body>
+
+</html>
